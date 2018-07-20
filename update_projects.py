@@ -17,14 +17,11 @@ def get_projects_list(auth_token):
     return sorted(alfred_projects, key=lambda project: project['name'].lower())
 
 def main(wf):
-
     def wrapper():
         auth_token = wf.get_password('semaphoreci-auth-token')
         return get_projects_list(auth_token)
-
-    wf.cached_data('projects', wrapper)    
+    wf.cached_data('projects', wrapper, max_age=10)    
     wf.send_feedback()
-
 if __name__ == '__main__':
     wf = Workflow3()
     sys.exit(wf.run(main))

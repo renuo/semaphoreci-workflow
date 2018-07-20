@@ -6,32 +6,41 @@ import os
 import re
 import json
 
-from workflow import Workflow3, ICON_WEB, ICON_WARNING, web, Variables, PasswordNotFound
+from workflow import Workflow3, ICON_WEB, ICON_INFO, ICON_WARNING, web, Variables, PasswordNotFound
 from workflow.background import run_in_background, is_running
 
 ICON_SEMAPHORE = '%s/semaphore.png' %(os.path.dirname(os.path.abspath(__file__))) 
 
 def main(wf):
+    logger = wf.logger
     args = wf.args
 
     auth_token = None
     try:
         auth_token = wf.get_password('semaphoreci-auth-token')
     except PasswordNotFound:  # API key has not yet been set
-        wf.add_item('No API key set.',
-                     'Please use ci-auth to set your SemaphoreCI auth key.',
+        item = wf.add_item('No API key set. Click here.',
+                     'Open your profile and use ci-auth to set your SemaphoreCI auth key.',
                      arg='https://semaphoreci.com/users/edit',
-                     valid=False,
+                     uid='ci-no-auth-key',
+                     valid=True,
                      icon=ICON_WARNING)
+        item.setvar('api_key', True)
         wf.send_feedback()
         return 0
     query = None
 
-    if not wf.cached_data_fresh('projects', 10):
-        run_in_background('update',['/usr/bin/python', wf.workflowfile('update_projects.py')])
-    projects = sorted(wf.cached_data('projects', max_age=0), key=lambda project: project['updated_at'], reverse=True)
-    
-    if projects:
+    if is_running('update_cache'):
+        wf.rerun = 0.5
+    else:
+        if not wf.cached_data_fresh('projects', 10):
+            run_in_background('update_cache',['/usr/bin/python', wf.workflowfile('update_projects.py')])
+
+    unsorted_projects = wf.cached_data('projects', max_age=0)
+
+    if unsorted_projects:
+        projects = sorted(unsorted_projects, key=lambda project: project['updated_at'], reverse=True)
+            
         if (len(args) == 0):        
             for project in projects:
                 arg = project['name']
@@ -41,7 +50,7 @@ def main(wf):
             query = args[0]
             project = next( (p for p in projects if p['name'] == query), None)
             if project is not None:            
-                branches = sorted(project['branches'], key=lambda branch: branch['started_at'], reverse=True)[:3]
+                branches = sorted(project['branches'], key=lambda branch: branch['started_at'], reverse=True)[:5]
                 for branch in branches:
                     subtitle = '%s by %s' %(branch['commit']['message'], branch['commit']['author_name'])
                     icon = '%s/%s.png' %(os.path.dirname(os.path.abspath(__file__)),branch['result'])
@@ -62,7 +71,8 @@ def main(wf):
                                     valid=True, icon=ICON_WEB)     
                 wf.add_item('Open on SemaphoreCI', project['html_url'], arg=project['html_url'], 
                                             valid=True, icon=ICON_WEB)
-    
+    else:
+        wf.add_item('Updating projects status...', icon=ICON_INFO)
     wf.send_feedback()
 
 
