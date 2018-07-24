@@ -6,7 +6,7 @@ import os
 import re
 import json
 
-from workflow import Workflow3, ICON_WEB, ICON_INFO, ICON_WARNING, web, Variables, PasswordNotFound
+from workflow import Workflow3, ICON_WEB, ICON_INFO, ICON_WARNING, ICON_CLOCK, web, Variables, PasswordNotFound
 from workflow.background import run_in_background, is_running
 
 ICON_SEMAPHORE = '%s/semaphore.png' %(os.path.dirname(os.path.abspath(__file__))) 
@@ -49,7 +49,13 @@ def main(wf):
         else:
             query = args[0]
             project = next( (p for p in projects if p['name'] == query), None)
-            if project is not None:            
+            if project is not None:           
+                if is_running('update_cache'):
+                    wf.add_item('Refreshing branches status...',
+                                'We are fetching the latest status for this project',
+                                uid='refreshing',
+                                valid=False,
+                                icon=ICON_CLOCK) 
                 branches = sorted(project['branches'], key=lambda branch: branch['started_at'], reverse=True)[:5]
                 for branch in branches:
                     subtitle = '%s by %s' %(branch['commit']['message'], branch['commit']['author_name'])

@@ -170,7 +170,7 @@
 				<key>matchmode</key>
 				<integer>1</integer>
 				<key>matchstring</key>
-				<string>true</string>
+				<string>1</string>
 			</dict>
 			<key>type</key>
 			<string>alfred.workflow.utility.filter</string>
@@ -255,7 +255,7 @@
 				<key>matchmode</key>
 				<integer>0</integer>
 				<key>matchstring</key>
-				<string>'true'</string>
+				<string>1</string>
 			</dict>
 			<key>type</key>
 			<string>alfred.workflow.utility.filter</string>
@@ -442,9 +442,9 @@
 		<key>E73B4367-98BB-4A63-84A1-CA096B459AD1</key>
 		<dict>
 			<key>xpos</key>
-			<integer>240</integer>
+			<integer>260</integer>
 			<key>ypos</key>
-			<integer>70</integer>
+			<integer>40</integer>
 		</dict>
 	</dict>
 	<key>webaddress</key>

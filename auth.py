@@ -10,6 +10,7 @@ from workflow import Workflow3, web
 def main(wf):
     query = wf.args[0]
     wf.save_password('semaphoreci-auth-token', query)
+    notify('SemaphoreCI', 'Auth Token set correctly.')
     wf.send_feedback()
 
 if __name__ == '__main__':
