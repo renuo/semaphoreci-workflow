@@ -29,4 +29,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Copyright
 
-Coypright 2018 [Renuo AG](https://www.renuo.ch/)
+Copyright 2018 [Renuo AG](https://www.renuo.ch/)
